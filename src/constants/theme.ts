@@ -1,55 +1,57 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import '@/global.css';
 
 import { Platform } from 'react-native';
 
+/**
+ * AlKhan brand palette — ported from the source Flutter app's `app_theme.dart`.
+ * `primary` and `textSecondary` are identical in both modes there.
+ */
+const primary = '#C9A24A';
+const textSecondary = '#8E877C';
+
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
+    text: '#0E0E0E',
+    textSecondary,
+    background: '#F5F5F5',
+    backgroundElement: '#FFFFFF',
     backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    surface: '#FFFFFF',
+    border: 'rgba(14, 14, 14, 0.1)',
+    imagePlaceholder: '#E0E0E0',
+    primary,
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
+    text: '#F5F1EA',
+    textSecondary,
+    background: '#0E0E0E',
+    backgroundElement: '#1A1A18',
     backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    surface: '#1A1A18',
+    border: 'rgba(245, 241, 234, 0.1)',
+    imagePlaceholder: '#232320',
+    primary,
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
   default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+    sans: 'Inter_400Regular',
+    sansMedium: 'Inter_500Medium',
+    sansSemiBold: 'Inter_600SemiBold',
+    display: 'PlayfairDisplay_600SemiBold',
+    displayBold: 'PlayfairDisplay_700Bold',
   },
   web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
+    sans: 'Inter, system-ui, sans-serif',
+    sansMedium: 'Inter, system-ui, sans-serif',
+    sansSemiBold: 'Inter, system-ui, sans-serif',
+    display: '"Playfair Display", Georgia, serif',
+    displayBold: '"Playfair Display", Georgia, serif',
   },
-});
+})!;
 
 export const Spacing = {
   half: 2,
