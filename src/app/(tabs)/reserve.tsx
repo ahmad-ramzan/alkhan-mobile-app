@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { FloatingShadow, Radius } from '@/constants/layout';
-import { Fonts } from '@/constants/theme';
+import { BottomTabInset, Fonts } from '@/constants/theme';
 import * as mobileAuthService from '@/services/mobile-auth-service';
 import * as reservationService from '@/services/reservation-service';
 import { useAppTheme } from '@/state/theme-context';
@@ -143,7 +143,7 @@ export default function ReservationScreen() {
       <View
         style={[
           styles.footer,
-          { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + 20 },
+          { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + BottomTabInset },
           FloatingShadow,
         ]}>
         <PrimaryButton

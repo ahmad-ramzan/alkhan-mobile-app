@@ -9,7 +9,7 @@ export default function TabsLayout() {
     <NativeTabs
       backgroundColor={colors.background}
       indicatorColor={colors.backgroundSelected}
-      labelStyle={{ selected: { color: colors.primary } }}>
+      tintColor={colors.primary}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Menu</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="fork.knife" md="restaurant" />

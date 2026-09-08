@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Radius } from '@/constants/layout';
-import { Fonts } from '@/constants/theme';
+import { BottomTabInset, Fonts } from '@/constants/theme';
 import * as offersService from '@/services/offers-service';
 import { useAppTheme } from '@/state/theme-context';
 
@@ -80,7 +80,7 @@ export default function OffersScreen() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 18, fontWeight: '700', fontFamily: Fonts.displayBold, textAlign: 'center', paddingVertical: 18 },
-  listContent: { paddingHorizontal: 20, paddingBottom: 24 },
+  listContent: { paddingHorizontal: 20, paddingBottom: 24 + BottomTabInset },
   card: { padding: 20 },
   codeBadge: {
     flexDirection: 'row',

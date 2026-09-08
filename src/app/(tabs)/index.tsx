@@ -18,7 +18,7 @@ import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { DEFAULT_PICKUP_TOKEN } from '@/constants/config';
 import { CardShadow, Radius } from '@/constants/layout';
-import { Fonts } from '@/constants/theme';
+import { BottomTabInset, Fonts } from '@/constants/theme';
 import * as offersService from '@/services/offers-service';
 import * as reservationService from '@/services/reservation-service';
 import * as reviewService from '@/services/review-service';
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   categoriesRow: { marginBottom: 18 },
   categoriesRowContent: { paddingHorizontal: 16, gap: 8 },
   sectionTitle: { fontSize: 11, letterSpacing: 1.6, fontWeight: '700', marginHorizontal: 16, marginBottom: 10 },
-  gridContent: { paddingHorizontal: 16, paddingBottom: 28 },
+  gridContent: { paddingHorizontal: 16, paddingBottom: 28 + BottomTabInset },
   gridRow: { gap: 14 },
   gridItem: { flex: 1, marginBottom: 14 },
   modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },

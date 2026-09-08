@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/ui/card';
 import { Radius } from '@/constants/layout';
-import { Fonts } from '@/constants/theme';
+import { BottomTabInset, Fonts } from '@/constants/theme';
 import { useAuth } from '@/state/auth-context';
 import { useAppTheme } from '@/state/theme-context';
 
@@ -140,7 +140,7 @@ function SettingRow({
 
 const styles = StyleSheet.create({
   title: { fontSize: 17, fontWeight: '700', fontFamily: Fonts.sansSemiBold, textAlign: 'center', paddingVertical: 16 },
-  content: { paddingHorizontal: 20, paddingBottom: 32 },
+  content: { paddingHorizontal: 20, paddingBottom: 32 + BottomTabInset },
   profileCard: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   avatarRing: { width: 62, height: 62, borderRadius: 31, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   avatar: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },

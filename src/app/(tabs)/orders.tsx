@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { CardShadow, Radius } from '@/constants/layout';
-import { Fonts } from '@/constants/theme';
+import { BottomTabInset, Fonts } from '@/constants/theme';
 import * as selfOrderingService from '@/services/self-ordering-service';
 import { useAppTheme } from '@/state/theme-context';
 
@@ -155,7 +155,7 @@ function StageMarker({ isDone, isCurrent }: { isDone: boolean; isCurrent: boolea
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { padding: 20 },
+  content: { padding: 20, paddingBottom: 20 + BottomTabInset },
   headerCard: { padding: 20, borderRadius: Radius.lg },
   headline: { fontSize: 22, fontWeight: '700', fontFamily: Fonts.displayBold },
   timeline: { marginTop: 28 },
