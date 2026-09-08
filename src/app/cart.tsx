@@ -3,8 +3,13 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { PrimaryButton } from '@/components/ui/primary-button';
+import { FloatingShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as selfOrderingService from '@/services/self-ordering-service';
 import { cartGrandTotal, useCartStore, type CartItem } from '@/state/cart-store';
 import { useAppTheme } from '@/state/theme-context';
@@ -14,6 +19,7 @@ const ORDER_TYPES = ['Takeaway', 'Delivery'];
 export default function CartScreen() {
   const { colors } = useAppTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const items = useCartStore((s) => s.items);
   const [orderType, setOrderType] = useState('Takeaway');
   const [deliveryEnabled, setDeliveryEnabled] = useState(false);
@@ -31,11 +37,10 @@ export default function CartScreen() {
         keyExtractor={(item, index) => `${item.itemCode}-${item.comment}-${index}`}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 40 }}>
-            Your cart is empty
-          </Text>
+          <EmptyState icon="cart-outline" title="Your cart is empty" message="Add some dishes from the menu to get started." />
         }
         renderItem={({ item }) => <CartRow item={item} />}
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         ListFooterComponent={
           items.length > 0 ? (
             <View style={styles.orderTypeSection}>
@@ -53,11 +58,13 @@ export default function CartScreen() {
                         styles.orderTypeChip,
                         {
                           borderColor: selected ? colors.primary : colors.border,
-                          backgroundColor: selected ? colors.primary : 'transparent',
+                          backgroundColor: selected ? colors.primary : colors.surface,
                           opacity: disabled ? 0.4 : 1,
                         },
                       ]}>
-                      <Text style={{ color: selected ? '#2A2007' : colors.text, fontWeight: '500' }}>{type}</Text>
+                      <Text style={{ color: selected ? '#2A2007' : colors.text, fontWeight: '600', fontSize: 13.5 }}>
+                        {type}
+                      </Text>
                     </Pressable>
                   );
                 })}
@@ -68,10 +75,15 @@ export default function CartScreen() {
       />
 
       {items.length > 0 && (
-        <View style={[styles.footer, { borderTopColor: colors.border }]}>
+        <View
+          style={[
+            styles.footer,
+            { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 },
+            FloatingShadow,
+          ]}>
           <View style={styles.totalRow}>
-            <Text style={{ color: colors.textSecondary, fontSize: 12 }}>Total</Text>
-            <Text style={[styles.totalValue, { color: colors.text }]}>Rs {grandTotal.toFixed(0)}</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: 12.5 }}>Total</Text>
+            <Text style={[styles.totalValue, { color: colors.primary }]}>Rs {grandTotal.toFixed(0)}</Text>
           </View>
           <PrimaryButton
             label="Proceed to Checkout"
@@ -86,7 +98,7 @@ export default function CartScreen() {
 function CartRow({ item }: { item: CartItem }) {
   const { colors } = useAppTheme();
   return (
-    <View style={[styles.row, { borderBottomColor: colors.border }]}>
+    <Card style={styles.row}>
       <View style={[styles.rowImage, { backgroundColor: colors.imagePlaceholder }]}>
         {item.itemImage ? (
           <Image source={{ uri: item.itemImage }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
@@ -96,27 +108,27 @@ function CartRow({ item }: { item: CartItem }) {
       </View>
       <View style={styles.rowContent}>
         <Text style={[styles.rowName, { color: colors.text }]}>{item.itemName}</Text>
-        {!!item.comment && <Text style={{ color: colors.textSecondary, fontSize: 11 }}>{item.comment}</Text>}
-        <Text style={{ color: colors.textSecondary, fontSize: 11 }}>Qty {item.quantity}</Text>
+        {!!item.comment && <Text style={{ color: colors.textSecondary, fontSize: 11.5 }}>{item.comment}</Text>}
+        <Text style={{ color: colors.textSecondary, fontSize: 11.5 }}>Qty {item.quantity}</Text>
       </View>
       <Text style={[styles.rowPrice, { color: colors.text }]}>Rs {(item.rate * item.quantity).toFixed(0)}</Text>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  listContent: { padding: 14 },
-  row: { flexDirection: 'row', gap: 10, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, alignItems: 'center' },
-  rowImage: { width: 48, height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  listContent: { padding: 16, paddingBottom: 8 },
+  row: { flexDirection: 'row', gap: 12, alignItems: 'center', padding: 12 },
+  rowImage: { width: 52, height: 52, borderRadius: Radius.sm, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   rowContent: { flex: 1, gap: 2 },
-  rowName: { fontSize: 13, fontWeight: '600' },
-  rowPrice: { fontSize: 13, fontWeight: '700' },
-  orderTypeSection: { marginTop: 16 },
-  sectionLabel: { fontSize: 10, letterSpacing: 1.2, fontWeight: '700', marginBottom: 8 },
-  orderTypeRow: { flexDirection: 'row', gap: 8 },
-  orderTypeChip: { flex: 1, paddingVertical: 10, borderRadius: 10, borderWidth: 1, alignItems: 'center' },
-  footer: { padding: 14, borderTopWidth: StyleSheet.hairlineWidth, gap: 10 },
+  rowName: { fontSize: 13.5, fontWeight: '700' },
+  rowPrice: { fontSize: 13.5, fontWeight: '700' },
+  orderTypeSection: { marginTop: 20 },
+  sectionLabel: { fontSize: 10.5, letterSpacing: 1.2, fontWeight: '700', marginBottom: 10 },
+  orderTypeRow: { flexDirection: 'row', gap: 10 },
+  orderTypeChip: { flex: 1, paddingVertical: 12, borderRadius: Radius.md, borderWidth: 1, alignItems: 'center' },
+  footer: { padding: 16, borderTopWidth: StyleSheet.hairlineWidth, gap: 12 },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  totalValue: { fontSize: 16, fontWeight: '700' },
+  totalValue: { fontSize: 18, fontWeight: '800', fontFamily: Fonts.displayBold },
 });

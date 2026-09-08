@@ -2,6 +2,8 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { StarRating } from '@/components/ui/star-rating';
 import * as reviewService from '@/services/review-service';
 import { useAppTheme } from '@/state/theme-context';
@@ -33,22 +35,22 @@ export default function MyReviewsScreen() {
         data={reviews}
         keyExtractor={(item, index) => item.invoice ?? String(index)}
         contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         ListEmptyComponent={
-          <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 40 }}>
-            You haven't written any reviews yet.
-          </Text>
+          <EmptyState icon="star-outline" title="No reviews yet" message="Reviews you write show up here." />
         }
         renderItem={({ item }) => (
           <Pressable
-            style={[styles.card, { backgroundColor: colors.surface }]}
             onPress={() => router.push({ pathname: '/account/order/[invoice]', params: { invoice: item.invoice } })}>
-            <View style={styles.rowBetween}>
-              <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{item.invoice}</Text>
-              <StarRating rating={Number(item.overall_rating ?? 0)} size={14} />
-            </View>
-            {!!item.review_text && (
-              <Text style={{ color: colors.text, fontSize: 13, marginTop: 8 }}>{item.review_text}</Text>
-            )}
+            <Card>
+              <View style={styles.rowBetween}>
+                <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{item.invoice}</Text>
+                <StarRating rating={Number(item.overall_rating ?? 0)} size={14} />
+              </View>
+              {!!item.review_text && (
+                <Text style={{ color: colors.text, fontSize: 13, marginTop: 10, lineHeight: 18 }}>{item.review_text}</Text>
+              )}
+            </Card>
           </Pressable>
         )}
       />
@@ -58,7 +60,6 @@ export default function MyReviewsScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  listContent: { padding: 16, gap: 10 },
-  card: { padding: 16, borderRadius: 12 },
+  listContent: { padding: 16 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/ui/primary-button';
+import { CardShadow, Radius } from '@/constants/layout';
 import * as mobileAuthService from '@/services/mobile-auth-service';
 import { useAppTheme } from '@/state/theme-context';
 
@@ -75,7 +76,7 @@ export default function ProfileSettingsScreen() {
         <TextInput
           value={name}
           onChangeText={setName}
-          style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+          style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface }]}
         />
 
         <SectionLabel title="EMAIL" />
@@ -84,7 +85,7 @@ export default function ProfileSettingsScreen() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
-          style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+          style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface }]}
         />
 
         <SectionLabel title="PHONE" />
@@ -104,7 +105,7 @@ export default function ProfileSettingsScreen() {
           <Text style={{ color: colors.textSecondary, fontSize: 13 }}>No saved addresses yet.</Text>
         ) : (
           addresses.map((addr) => (
-            <View key={addr.name} style={[styles.addressCard, { backgroundColor: colors.surface }]}>
+            <View key={addr.name} style={[styles.addressCard, { backgroundColor: colors.surface }, CardShadow]}>
               <Ionicons name="location-outline" size={18} color={colors.primary} />
               <Text style={{ color: colors.text, fontSize: 13, flex: 1 }}>
                 {addr.address_line1}, {addr.city}
@@ -123,14 +124,14 @@ export default function ProfileSettingsScreen() {
               onChangeText={setNewLine1}
               placeholder="Address"
               placeholderTextColor={colors.textSecondary}
-              style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+              style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
             />
             <TextInput
               value={newCity}
               onChangeText={setNewCity}
               placeholder="City"
               placeholderTextColor={colors.textSecondary}
-              style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+              style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
             />
             <View style={styles.dialogActions}>
               <Pressable onPress={() => setDialogVisible(false)}>
@@ -156,12 +157,12 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 20 },
   sectionLabel: { fontSize: 11, letterSpacing: 1, fontWeight: '700', marginBottom: 8, marginTop: 16 },
-  input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, marginBottom: 4 },
+  input: { borderWidth: 1, borderRadius: Radius.sm, paddingHorizontal: 14, paddingVertical: 13, fontSize: 14, marginBottom: 6 },
   readonlyInput: { justifyContent: 'center' },
   addressesHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 28 },
-  addressCard: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 10, marginBottom: 10 },
-  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)', padding: 24 },
-  dialog: { width: '100%', borderRadius: 12, padding: 20 },
+  addressCard: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: Radius.md, marginBottom: 10 },
+  modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.45)', padding: 24 },
+  dialog: { width: '100%', borderRadius: Radius.lg, padding: 22 },
   dialogTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
   dialogActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 },
 });

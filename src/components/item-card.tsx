@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { resolveImageUrl } from '@/constants/config';
+import { CardShadow, Radius } from '@/constants/layout';
 import { useAppTheme } from '@/state/theme-context';
 
 export type MenuItemData = {
@@ -27,7 +28,14 @@ export function ItemCard({
   const imageUrl = resolveImageUrl(item.item_image);
 
   return (
-    <Pressable style={styles.card} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: colors.surface },
+        CardShadow,
+        pressed && styles.pressed,
+      ]}
+      onPress={onPress}>
       <View style={[styles.imageBox, { backgroundColor: colors.imagePlaceholder }]}>
         {imageUrl ? (
           <Image source={{ uri: imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
@@ -49,7 +57,11 @@ export function ItemCard({
         <Pressable
           onPress={onAdd}
           hitSlop={6}
-          style={[styles.addButton, { backgroundColor: colors.primary }]}>
+          style={({ pressed }) => [
+            styles.addButton,
+            { backgroundColor: colors.primary },
+            pressed && styles.pressed,
+          ]}>
           <Ionicons name="add" size={18} color="#2A2007" />
         </Pressable>
       </View>
@@ -61,12 +73,15 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     padding: 10,
-    borderRadius: 16,
+    borderRadius: Radius.lg,
     gap: 6,
   },
+  pressed: {
+    opacity: 0.85,
+  },
   imageBox: {
-    aspectRatio: 1.2,
-    borderRadius: 12,
+    aspectRatio: 1.15,
+    borderRadius: Radius.md,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -82,21 +97,22 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 2,
   },
   price: {
-    fontSize: 13,
+    fontSize: 13.5,
     fontWeight: '700',
   },
   addButton: {
     width: 30,
     height: 30,
-    borderRadius: 9,
+    borderRadius: Radius.sm + 1,
     alignItems: 'center',
     justifyContent: 'center',
   },

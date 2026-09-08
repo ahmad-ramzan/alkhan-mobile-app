@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { EmptyState } from '@/components/ui/empty-state';
 import { resolveImageUrl } from '@/constants/config';
+import { CardShadow, Radius } from '@/constants/layout';
 import * as mobileAuthService from '@/services/mobile-auth-service';
 import { useCartStore } from '@/state/cart-store';
 import { useAppTheme } from '@/state/theme-context';
@@ -51,16 +53,19 @@ export default function FavoritesScreen() {
         contentContainerStyle={styles.gridContent}
         columnWrapperStyle={styles.gridRow}
         ListEmptyComponent={
-          <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 40 }}>
-            You haven't favorited any dishes yet.
-          </Text>
+          <EmptyState icon="heart-outline" title="No favorites yet" message="Tap the heart on any dish to save it here." />
         }
         renderItem={({ item }) => {
           const imageUrl = resolveImageUrl(item.image);
           return (
             <View style={styles.gridItem}>
               <Pressable
-                style={[styles.card, { backgroundColor: colors.surface }]}
+                style={({ pressed }) => [
+                  styles.card,
+                  { backgroundColor: colors.surface },
+                  CardShadow,
+                  pressed && { opacity: 0.85 },
+                ]}
                 onPress={() =>
                   router.push({
                     pathname: '/item/[itemCode]',
@@ -112,10 +117,10 @@ const styles = StyleSheet.create({
   gridContent: { padding: 14 },
   gridRow: { gap: 12 },
   gridItem: { flex: 1, marginBottom: 12 },
-  card: { flex: 1, padding: 10, borderRadius: 16, gap: 6 },
+  card: { flex: 1, padding: 10, borderRadius: Radius.lg, gap: 6 },
   imageBox: {
-    aspectRatio: 1.2,
-    borderRadius: 12,
+    aspectRatio: 1.15,
+    borderRadius: Radius.md,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',

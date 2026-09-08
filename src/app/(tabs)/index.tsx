@@ -9,14 +9,16 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ItemCard } from '@/components/item-card';
 import { Chip } from '@/components/ui/chip';
+import { EmptyState } from '@/components/ui/empty-state';
 import { DEFAULT_PICKUP_TOKEN } from '@/constants/config';
+import { CardShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as offersService from '@/services/offers-service';
 import * as reservationService from '@/services/reservation-service';
 import * as reviewService from '@/services/review-service';
@@ -88,31 +90,31 @@ export default function MenuScreen() {
   if (errorMessage) {
     return (
       <SafeAreaView style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text, paddingHorizontal: 24, textAlign: 'center' }}>
-          {errorMessage}
-        </Text>
+        <EmptyState icon="cloud-offline-outline" title="Couldn't load the menu" message={errorMessage} />
       </SafeAreaView>
     );
   }
 
+  const cartCount = cartItemCount(cartItems);
+
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={styles.header}>
-        <Pressable onPress={() => setBranchPickerVisible(true)}>
-          <Text style={[styles.brand, { color: colors.text }]}>ALKHAN</Text>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <Pressable onPress={() => setBranchPickerVisible(true)} hitSlop={4}>
+          <Text style={[styles.brand, { color: colors.primary }]}>ALKHAN</Text>
           <View style={styles.branchRow}>
-            <Ionicons name="location" size={14} color={colors.primary} />
-            <Text style={[styles.branchText, { color: colors.primary }]}>{selectedBranch}</Text>
-            <Ionicons name="chevron-down" size={14} color={colors.primary} />
+            <Ionicons name="location" size={13} color={colors.textSecondary} />
+            <Text style={[styles.branchText, { color: colors.text }]}>{selectedBranch}</Text>
+            <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
           </View>
         </Pressable>
-        <Pressable style={styles.cartIconWrap} onPress={() => router.push('/cart')}>
-          <Ionicons name="cart-outline" size={22} color={colors.textSecondary} />
-          {cartItemCount(cartItems) > 0 && (
-            <View style={[styles.badge, { backgroundColor: colors.primary }]}>
-              <Text style={styles.badgeText}>
-                {cartItemCount(cartItems) > 9 ? '9+' : cartItemCount(cartItems)}
-              </Text>
+        <Pressable
+          style={[styles.cartIconWrap, { backgroundColor: colors.surface }]}
+          onPress={() => router.push('/cart')}>
+          <Ionicons name="cart-outline" size={20} color={colors.text} />
+          {cartCount > 0 && (
+            <View style={[styles.badge, { backgroundColor: colors.primary, borderColor: colors.background }]}>
+              <Text style={styles.badgeText}>{cartCount > 9 ? '9+' : cartCount}</Text>
             </View>
           )}
         </Pressable>
@@ -127,9 +129,9 @@ export default function MenuScreen() {
         ListHeaderComponent={
           <View>
             <Pressable
-              style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              style={[styles.searchBar, { backgroundColor: colors.surface }, CardShadow]}
               onPress={() => router.push('/search')}>
-              <Ionicons name="search" size={16} color={colors.textSecondary} />
+              <Ionicons name="search" size={17} color={colors.textSecondary} />
               <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>
                 Search 150+ dishes
               </Text>
@@ -167,26 +169,25 @@ export default function MenuScreen() {
               </View>
             )}
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.categoriesRow}
+              contentContainerStyle={styles.categoriesRowContent}>
               {categories.map((category) => (
-                <View key={category} style={styles.categoryChip}>
-                  <Chip
-                    label={category}
-                    selected={category === selectedCategory}
-                    onPress={() => setSelectedCategory(category)}
-                  />
-                </View>
+                <Chip
+                  key={category}
+                  label={category}
+                  selected={category === selectedCategory}
+                  onPress={() => setSelectedCategory(category)}
+                />
               ))}
             </ScrollView>
 
             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>ALL ITEMS</Text>
           </View>
         }
-        ListEmptyComponent={
-          <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 24 }}>
-            No items found
-          </Text>
-        }
+        ListEmptyComponent={<EmptyState icon="fast-food-outline" title="No items found" />}
         renderItem={({ item }) => {
           const rating = itemRatings[item.item_name];
           return (
@@ -216,6 +217,7 @@ export default function MenuScreen() {
       <Modal visible={branchPickerVisible} transparent animationType="slide">
         <Pressable style={styles.modalBackdrop} onPress={() => setBranchPickerVisible(false)}>
           <View style={[styles.branchSheet, { backgroundColor: colors.surface }]}>
+            <View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />
             <Text style={[styles.branchSheetTitle, { color: colors.text }]}>Select Branch</Text>
             {branches.map((branch) => (
               <Pressable
@@ -234,9 +236,11 @@ export default function MenuScreen() {
                   style={{
                     color: branch === selectedBranch ? colors.primary : colors.text,
                     fontWeight: branch === selectedBranch ? '700' : '400',
+                    flex: 1,
                   }}>
                   {branch}
                 </Text>
+                {branch === selectedBranch && <Ionicons name="checkmark-circle" size={18} color={colors.primary} />}
               </Pressable>
             ))}
           </View>
@@ -252,15 +256,16 @@ function OfferCard({ offer, onPress }: { offer: Record<string, any>; onPress: ()
   const minOrder = Number(offer.minimum_order_amount ?? 0);
 
   return (
-    <Pressable style={styles.offerCard} onPress={onPress}>
+    <Pressable style={({ pressed }) => [styles.offerCard, pressed && { opacity: 0.92 }]} onPress={onPress}>
       <View style={styles.offerCodeRow}>
-        <Ionicons name="pricetag" size={16} color="#C9A24A" />
+        <Ionicons name="pricetag" size={16} color="#D9B872" />
         <Text style={styles.offerCode}>{offer.code}</Text>
       </View>
       <Text style={styles.offerDiscount}>{discountLabel}</Text>
       {minOrder > 0 && <Text style={styles.offerMinOrder}>On orders above Rs. {minOrder.toFixed(0)}</Text>}
       <View style={styles.offerButton}>
         <Text style={styles.offerButtonText}>View Offers</Text>
+        <Ionicons name="arrow-forward" size={13} color="#fff" />
       </View>
     </Pressable>
   );
@@ -272,69 +277,81 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  brand: { fontSize: 11, letterSpacing: 1.5, fontWeight: '700' },
-  branchRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
-  branchText: { fontSize: 13, fontWeight: '500' },
-  cartIconWrap: { padding: 4 },
-  badge: {
-    position: 'absolute',
-    right: -2,
-    top: -2,
-    minWidth: 14,
-    height: 14,
-    borderRadius: 7,
+  brand: { fontSize: 15, letterSpacing: 1, fontFamily: Fonts.displayBold },
+  branchRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
+  branchText: { fontSize: 12.5, fontWeight: '600' },
+  cartIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 2,
   },
-  badgeText: { color: '#000', fontSize: 8, fontWeight: '700' },
+  badge: {
+    position: 'absolute',
+    right: -4,
+    top: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  badgeText: { color: '#2A2007', fontSize: 9, fontWeight: '800' },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginHorizontal: 14,
-    marginBottom: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
+    gap: 10,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    borderRadius: Radius.md,
   },
-  searchPlaceholder: { fontSize: 12 },
-  offersSection: { marginBottom: 16 },
+  searchPlaceholder: { fontSize: 13 },
+  offersSection: { marginBottom: 20 },
   offerCard: {
     width: 300,
-    marginLeft: 14,
+    marginLeft: 16,
     padding: 20,
-    borderRadius: 16,
-    backgroundColor: '#251A13',
+    borderRadius: Radius.xl,
+    backgroundColor: '#241811',
   },
-  offerCodeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
-  offerCode: { color: '#C9A24A', fontSize: 12, fontWeight: '700', letterSpacing: 1 },
-  offerDiscount: { color: '#fff', fontSize: 26, fontWeight: '800' },
-  offerMinOrder: { color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 6 },
+  offerCodeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 },
+  offerCode: { color: '#D9B872', fontSize: 12, fontWeight: '700', letterSpacing: 1.2 },
+  offerDiscount: { color: '#fff', fontSize: 27, fontWeight: '800', fontFamily: Fonts.displayBold },
+  offerMinOrder: { color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 8 },
   offerButton: {
-    marginTop: 16,
+    marginTop: 18,
     alignSelf: 'flex-start',
-    backgroundColor: '#BC471B',
-    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#C9A24A',
+    borderRadius: Radius.sm,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 11,
   },
-  offerButtonText: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 },
+  offerButtonText: { color: '#2A2007', fontWeight: '800', fontSize: 12.5 },
+  dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 12 },
   dot: { height: 6, borderRadius: 3 },
-  categoriesRow: { marginHorizontal: 14, marginBottom: 12 },
-  categoryChip: { marginRight: 6 },
-  sectionTitle: { fontSize: 9, letterSpacing: 1.4, fontWeight: '700', marginHorizontal: 14, marginBottom: 6 },
-  gridContent: { paddingHorizontal: 14, paddingBottom: 24 },
-  gridRow: { gap: 12 },
-  gridItem: { flex: 1, marginBottom: 12 },
-  modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
-  branchSheet: { borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 16, paddingBottom: 32 },
-  branchSheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
-  branchOption: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12 },
+  categoriesRow: { marginBottom: 18 },
+  categoriesRowContent: { paddingHorizontal: 16, gap: 8 },
+  sectionTitle: { fontSize: 11, letterSpacing: 1.6, fontWeight: '700', marginHorizontal: 16, marginBottom: 10 },
+  gridContent: { paddingHorizontal: 16, paddingBottom: 28 },
+  gridRow: { gap: 14 },
+  gridItem: { flex: 1, marginBottom: 14 },
+  modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
+  branchSheet: { borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, padding: 20, paddingBottom: 36 },
+  sheetHandle: { width: 36, height: 4, borderRadius: 2, alignSelf: 'center', marginBottom: 16 },
+  branchSheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: 14 },
+  branchOption: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 },
 });

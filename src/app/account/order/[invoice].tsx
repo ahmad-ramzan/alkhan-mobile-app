@@ -3,8 +3,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { PrimaryButton } from '@/components/ui/primary-button';
 import { StarRating } from '@/components/ui/star-rating';
+import { CardShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as mobileAuthService from '@/services/mobile-auth-service';
 import * as reviewService from '@/services/review-service';
 import { useAppTheme } from '@/state/theme-context';
@@ -213,11 +214,11 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 20, paddingBottom: 32 },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  iconBox: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  orderType: { fontSize: 16, fontWeight: '700' },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+  iconBox: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  orderType: { fontSize: 16, fontWeight: '700', fontFamily: Fonts.displayBold },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill },
   timeRow: { flexDirection: 'row', alignItems: 'center', marginTop: 14 },
-  card: { padding: 18, borderRadius: 14, marginTop: 16 },
+  card: { padding: 18, borderRadius: Radius.lg, marginTop: 16, ...CardShadow },
   cardLabel: { fontSize: 11, letterSpacing: 1.2, fontWeight: '700' },
   itemRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 14 },
   qtyBox: { width: 22, height: 22, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },

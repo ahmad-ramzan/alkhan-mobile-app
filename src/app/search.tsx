@@ -5,6 +5,8 @@ import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ItemCard } from '@/components/item-card';
 import { Chip } from '@/components/ui/chip';
+import { EmptyState } from '@/components/ui/empty-state';
+import { CardShadow, Radius } from '@/constants/layout';
 import { useCartStore } from '@/state/cart-store';
 import { useMenuData } from '@/state/menu-context';
 import { useAppTheme } from '@/state/theme-context';
@@ -45,8 +47,8 @@ export default function SearchScreen() {
 
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
-      <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Ionicons name="search" size={16} color={colors.textSecondary} />
+      <View style={[styles.searchBar, { backgroundColor: colors.surface }, CardShadow]}>
+        <Ionicons name="search" size={17} color={colors.textSecondary} />
         <TextInput
           value={query}
           onChangeText={setQuery}
@@ -88,7 +90,7 @@ export default function SearchScreen() {
         contentContainerStyle={styles.gridContent}
         columnWrapperStyle={styles.gridRow}
         ListEmptyComponent={
-          <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 24 }}>No dishes found</Text>
+          <EmptyState icon="search-outline" title="No dishes found" message="Try a different search or filter." />
         }
         renderItem={({ item }) => {
           const rating = itemRatings[item.item_name];
@@ -124,14 +126,14 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    margin: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
+    gap: 10,
+    margin: 16,
+    marginBottom: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: Radius.md,
   },
-  input: { flex: 1, fontSize: 13 },
+  input: { flex: 1, fontSize: 13.5 },
   filterRow: { marginBottom: 10, maxHeight: 36 },
   filterRowContent: { paddingHorizontal: 14, gap: 6 },
   gridContent: { paddingHorizontal: 14, paddingTop: 8, paddingBottom: 24 },

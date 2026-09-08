@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
+import { Radius } from '@/constants/layout';
 import { useAppTheme } from '@/state/theme-context';
 
 export function Chip({
@@ -16,12 +17,13 @@ export function Chip({
   return (
     <Pressable
       onPress={onPress}
-      style={[
+      style={({ pressed }) => [
         styles.chip,
         {
           borderColor: selected ? colors.primary : colors.border,
-          backgroundColor: selected ? colors.primary : 'transparent',
+          backgroundColor: selected ? colors.primary : colors.surface,
         },
+        pressed && { opacity: 0.75 },
       ]}>
       <Text
         style={[styles.label, { color: selected ? '#2A2007' : colors.textSecondary }]}
@@ -34,13 +36,13 @@ export function Chip({
 
 const styles = StyleSheet.create({
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: Radius.pill,
     borderWidth: 1,
   },
   label: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });

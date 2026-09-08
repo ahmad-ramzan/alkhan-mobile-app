@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 import * as reservationService from '@/services/reservation-service';
 import { useAppTheme } from '@/state/theme-context';
 
@@ -57,23 +59,22 @@ export default function MyReservationsScreen() {
         data={reservations}
         keyExtractor={(item) => item.name}
         contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         ListEmptyComponent={
-          <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 40 }}>
-            You don't have any reservations yet.
-          </Text>
+          <EmptyState icon="calendar-outline" title="No reservations yet" message="Book a table from the Reserve tab." />
         }
         renderItem={({ item }) => {
           const statusColor = STATUS_COLORS[item.status] ?? colors.textSecondary;
           const canCancel = item.status === 'Pending' || item.status === 'Confirmed';
           return (
-            <View style={[styles.card, { backgroundColor: colors.surface }]}>
+            <Card>
               <View style={styles.rowBetween}>
                 <Text style={[styles.branch, { color: colors.text }]}>{item.branch}</Text>
                 <View style={[styles.badge, { backgroundColor: `${statusColor}26` }]}>
                   <Text style={{ color: statusColor, fontSize: 11, fontWeight: '700' }}>{item.status}</Text>
                 </View>
               </View>
-              <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 6 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 8 }}>
                 {item.reservation_date} · {item.reservation_time} · Party of {item.party_size}
               </Text>
               {!!item.occasion && (
@@ -81,10 +82,10 @@ export default function MyReservationsScreen() {
               )}
               {canCancel && (
                 <Pressable style={styles.cancelButton} onPress={() => cancel(item.name)}>
-                  <Text style={{ color: '#E06B6B', fontSize: 12, fontWeight: '600' }}>Cancel</Text>
+                  <Text style={{ color: '#E06B6B', fontSize: 12, fontWeight: '700' }}>Cancel</Text>
                 </Pressable>
               )}
-            </View>
+            </Card>
           );
         }}
       />
@@ -94,10 +95,9 @@ export default function MyReservationsScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  listContent: { padding: 16, gap: 10 },
-  card: { padding: 16, borderRadius: 12 },
+  listContent: { padding: 16 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   branch: { fontSize: 14, fontWeight: '700' },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
-  cancelButton: { alignSelf: 'flex-start', marginTop: 10 },
+  cancelButton: { alignSelf: 'flex-start', marginTop: 12 },
 });

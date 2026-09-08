@@ -2,8 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Card } from '@/components/ui/card';
 import { PrimaryButton } from '@/components/ui/primary-button';
+import { FloatingShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as mobileAuthService from '@/services/mobile-auth-service';
 import * as selfOrderingService from '@/services/self-ordering-service';
 import { cartGrandTotal, useCartStore } from '@/state/cart-store';
@@ -12,6 +16,7 @@ import { useAppTheme } from '@/state/theme-context';
 export default function CheckoutScreen() {
   const { colors } = useAppTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ orderType?: string }>();
   const cartItems = useCartStore((s) => s.items);
 
@@ -122,9 +127,11 @@ export default function CheckoutScreen() {
   if (successRef !== null) {
     return (
       <View style={[styles.successScreen, { backgroundColor: colors.background }]}>
-        <Ionicons name="checkmark-circle" size={64} color={colors.primary} />
+        <View style={[styles.successIconRing, { borderColor: colors.primary }]}>
+          <Ionicons name="checkmark" size={40} color={colors.primary} />
+        </View>
         <Text style={[styles.successTitle, { color: colors.text }]}>Order Placed Successfully!</Text>
-        <Text style={{ color: colors.textSecondary, marginTop: 8 }}>Reference: {successRef}</Text>
+        <Text style={{ color: colors.textSecondary, marginTop: 8, fontSize: 13 }}>Reference: {successRef}</Text>
         <Text style={{ color: colors.textSecondary, marginTop: 4, fontSize: 12 }}>
           {orderType === 'Delivery' ? "We'll deliver to your address." : 'Pay at the counter when you pick up.'}
         </Text>
@@ -137,19 +144,19 @@ export default function CheckoutScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <SectionHeader title="CUSTOMER INFORMATION" />
         {isLoggedIn ? (
-          <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <Card>
             <InfoRow label="Name" value={customerName ?? '—'} />
             <InfoRow label="Phone" value={customerPhone ?? '—'} />
-          </View>
+          </Card>
         ) : (
-          <View style={[styles.card, styles.signInCard, { backgroundColor: colors.surface }]}>
+          <Card style={styles.signInCard}>
             <Text style={{ color: colors.text, fontSize: 13, flex: 1 }}>
               Sign in to attach your name & phone to this order
             </Text>
             <Pressable onPress={() => router.push('/auth/otp-login')}>
               <Text style={{ color: colors.primary, fontWeight: '700' }}>Sign In</Text>
             </Pressable>
-          </View>
+          </Card>
         )}
 
         <SectionHeader title="ORDER TYPE" />
@@ -176,14 +183,14 @@ export default function CheckoutScreen() {
         {orderType === 'Delivery' && (
           <>
             <SectionHeader title="DELIVERY ADDRESS" />
-            <Pressable
-              style={[styles.card, styles.addressRow, { backgroundColor: colors.surface }]}
-              onPress={() => (isLoggedIn ? setAddressPickerVisible(true) : router.push('/auth/otp-login'))}>
-              <Ionicons name="location-outline" size={18} color={colors.primary} />
-              <Text style={{ color: colors.text, fontSize: 13, flex: 1 }} numberOfLines={1}>
-                {selectedAddress ? `${selectedAddress.address_line1}, ${selectedAddress.city}` : 'Select Address'}
-              </Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+            <Pressable onPress={() => (isLoggedIn ? setAddressPickerVisible(true) : router.push('/auth/otp-login'))}>
+              <Card style={styles.addressRow}>
+                <Ionicons name="location-outline" size={18} color={colors.primary} />
+                <Text style={{ color: colors.text, fontSize: 13, flex: 1 }} numberOfLines={1}>
+                  {selectedAddress ? `${selectedAddress.address_line1}, ${selectedAddress.city}` : 'Select Address'}
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+              </Card>
             </Pressable>
           </>
         )}
@@ -203,16 +210,21 @@ export default function CheckoutScreen() {
         )}
 
         <SectionHeader title="ORDER SUMMARY" />
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <Card>
           <SummaryRow label="Subtotal" value={`Rs. ${grandTotal.toFixed(0)}`} />
           <SummaryRow label="Discount" value="Rs. 0" />
           <SummaryRow label="Tax" value="Rs. 0" />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <SummaryRow label="Total" value={`Rs. ${grandTotal.toFixed(0)}`} isTotal />
-        </View>
+        </Card>
       </ScrollView>
 
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.footer,
+          { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + 16 },
+          FloatingShadow,
+        ]}>
         <PrimaryButton label="Place Order" onPress={placeOrder} loading={isPlacingOrder || loadingContext} />
       </View>
 
@@ -267,14 +279,14 @@ export default function CheckoutScreen() {
               onChangeText={setNewAddressLine1}
               placeholder="Address"
               placeholderTextColor={colors.textSecondary}
-              style={[styles.textInput, { color: colors.text, borderColor: colors.border }]}
+              style={[styles.textInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
             />
             <TextInput
               value={newAddressCity}
               onChangeText={setNewAddressCity}
               placeholder="City"
               placeholderTextColor={colors.textSecondary}
-              style={[styles.textInput, { color: colors.text, borderColor: colors.border }]}
+              style={[styles.textInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
             />
             <View style={styles.dialogActions}>
               <Pressable onPress={() => setAddAddressVisible(false)}>
@@ -332,8 +344,7 @@ function SummaryRow({ label, value, isTotal }: { label: string; value: string; i
 
 const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 24 },
-  sectionHeader: { fontSize: 12, letterSpacing: 1.2, fontWeight: '700', marginBottom: 10, marginTop: 20 },
-  card: { padding: 16, borderRadius: 10 },
+  sectionHeader: { fontSize: 11.5, letterSpacing: 1.2, fontWeight: '700', marginBottom: 10, marginTop: 22 },
   signInCard: { flexDirection: 'row', alignItems: 'center' },
   infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   radioRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
@@ -342,13 +353,14 @@ const styles = StyleSheet.create({
   divider: { height: StyleSheet.hairlineWidth, marginVertical: 8 },
   footer: { padding: 16, borderTopWidth: StyleSheet.hairlineWidth },
   successScreen: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  successTitle: { fontSize: 18, fontWeight: '700', marginTop: 16 },
-  modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
-  modalCenterBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)', padding: 24 },
-  sheet: { borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 16, paddingBottom: 32 },
-  sheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: 8 },
+  successIconRing: { width: 88, height: 88, borderRadius: 44, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  successTitle: { fontSize: 19, fontWeight: '700', fontFamily: Fonts.displayBold, marginTop: 20, textAlign: 'center' },
+  modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
+  modalCenterBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.45)', padding: 24 },
+  sheet: { borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, padding: 20, paddingBottom: 36 },
+  sheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: 10 },
   addAddressButton: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, paddingVertical: 8 },
-  dialog: { width: '100%', borderRadius: 12, padding: 20 },
-  textInput: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, marginTop: 12, fontSize: 13 },
+  dialog: { width: '100%', borderRadius: Radius.lg, padding: 22 },
+  textInput: { borderWidth: 1, borderRadius: Radius.sm, paddingHorizontal: 14, paddingVertical: 12, marginTop: 12, fontSize: 13.5 },
   dialogActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 },
 });

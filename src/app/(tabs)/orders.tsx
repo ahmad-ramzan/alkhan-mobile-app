@@ -3,6 +3,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { EmptyState } from '@/components/ui/empty-state';
+import { CardShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as selfOrderingService from '@/services/self-ordering-service';
 import { useAppTheme } from '@/state/theme-context';
 
@@ -71,9 +74,11 @@ export default function OrderTrackingScreen() {
   if (!hasActiveOrder) {
     return (
       <SafeAreaView style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.textSecondary, textAlign: 'center', paddingHorizontal: 32 }}>
-          No active order.{'\n'}Place an order to see live status here.
-        </Text>
+        <EmptyState
+          icon="receipt-outline"
+          title="No active order"
+          message="Place an order to see live status here."
+        />
       </SafeAreaView>
     );
   }
@@ -96,7 +101,7 @@ export default function OrderTrackingScreen() {
             tintColor={colors.primary}
           />
         }>
-        <View style={[styles.headerCard, { backgroundColor: colors.surface }]}>
+        <View style={[styles.headerCard, { backgroundColor: colors.surface }, CardShadow]}>
           <Text style={[styles.headline, { color: colors.text }]}>{currentStage.label}</Text>
           <Text style={{ color: colors.textSecondary, fontSize: 13, marginTop: 6 }}>{subtitle}</Text>
           {status!.order_placed_at && (
@@ -151,8 +156,8 @@ function StageMarker({ isDone, isCurrent }: { isDone: boolean; isCurrent: boolea
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 20 },
-  headerCard: { padding: 20, borderRadius: 16 },
-  headline: { fontSize: 22, fontWeight: '700' },
+  headerCard: { padding: 20, borderRadius: Radius.lg },
+  headline: { fontSize: 22, fontWeight: '700', fontFamily: Fonts.displayBold },
   timeline: { marginTop: 28 },
   timelineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 16 },
   markerColumn: { alignItems: 'center', width: 16 },

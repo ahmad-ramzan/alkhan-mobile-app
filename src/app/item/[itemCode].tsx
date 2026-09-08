@@ -3,10 +3,12 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { resolveImageUrl } from '@/constants/config';
+import { CardShadow, FloatingShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as mobileAuthService from '@/services/mobile-auth-service';
 import { useCartStore } from '@/state/cart-store';
 import { useAppTheme } from '@/state/theme-context';
@@ -17,6 +19,7 @@ const PORTIONS = ['Half', 'Full'];
 export default function ItemDetailScreen() {
   const { colors } = useAppTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{
     itemCode: string;
     itemName?: string;
@@ -77,14 +80,14 @@ export default function ItemDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={[styles.imageBox, { backgroundColor: colors.imagePlaceholder }]}>
+        <View style={[styles.imageBox, { backgroundColor: colors.imagePlaceholder }, CardShadow]}>
           {imageUrl ? (
             <Image source={{ uri: imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
           ) : (
             <Ionicons name="restaurant-outline" size={48} color={colors.primary} />
           )}
           <Pressable
-            style={[styles.favoriteButton, { backgroundColor: colors.surface }]}
+            style={[styles.favoriteButton, { backgroundColor: colors.surface }, CardShadow]}
             onPress={toggleFavorite}
             disabled={favoriteBusy}>
             <Ionicons
@@ -102,7 +105,7 @@ export default function ItemDetailScreen() {
               <Text style={[styles.description, { color: colors.textSecondary }]}>{params.description}</Text>
             )}
           </View>
-          <Text style={[styles.price, { color: colors.text }]}>Rs {rate.toFixed(0)}</Text>
+          <Text style={[styles.price, { color: colors.primary }]}>Rs {rate.toFixed(0)}</Text>
         </View>
 
         <SectionLabel title="SPICE LEVEL" />
@@ -128,14 +131,19 @@ export default function ItemDetailScreen() {
           </Pressable>
           <Text style={[styles.quantityText, { color: colors.text }]}>{quantity}</Text>
           <Pressable
-            style={[styles.stepperButton, { borderColor: colors.border }]}
+            style={[styles.stepperButton, { backgroundColor: colors.primary, borderColor: colors.primary }]}
             onPress={() => setQuantity((q) => q + 1)}>
-            <Ionicons name="add" size={18} color={colors.text} />
+            <Ionicons name="add" size={18} color="#2A2007" />
           </Pressable>
         </View>
       </ScrollView>
 
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.footer,
+          { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + 14 },
+          FloatingShadow,
+        ]}>
         <PrimaryButton label={`Add · Rs ${(rate * quantity).toFixed(0)}`} onPress={addToCart} />
       </View>
     </View>
@@ -154,48 +162,48 @@ function OptionChip({ label, selected, onPress }: { label: string; selected: boo
       onPress={onPress}
       style={[
         styles.optionChip,
-        { borderColor: selected ? colors.primary : colors.border, backgroundColor: selected ? colors.primary : 'transparent' },
+        { borderColor: selected ? colors.primary : colors.border, backgroundColor: selected ? colors.primary : colors.surface },
       ]}>
-      <Text style={{ color: selected ? '#2A2007' : colors.text, fontSize: 12, fontWeight: '500' }}>{label}</Text>
+      <Text style={{ color: selected ? '#2A2007' : colors.text, fontSize: 12.5, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 14, paddingBottom: 24 },
+  content: { padding: 16, paddingBottom: 32 },
   imageBox: {
-    height: 220,
-    borderRadius: 16,
+    height: 230,
+    borderRadius: Radius.xl,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   favoriteButton: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    top: 14,
+    right: 14,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
-  name: { fontSize: 18, fontWeight: '700' },
-  description: { fontSize: 12, marginTop: 6, lineHeight: 18 },
-  price: { fontSize: 16, fontWeight: '700' },
-  sectionLabel: { fontSize: 10, letterSpacing: 1.2, fontWeight: '700', marginTop: 20, marginBottom: 8 },
+  headerRow: { flexDirection: 'row', gap: 12, marginTop: 20 },
+  name: { fontSize: 19, fontWeight: '700', fontFamily: Fonts.displayBold },
+  description: { fontSize: 12.5, marginTop: 6, lineHeight: 18 },
+  price: { fontSize: 17, fontWeight: '800', fontFamily: Fonts.displayBold },
+  sectionLabel: { fontSize: 10.5, letterSpacing: 1.2, fontWeight: '700', marginTop: 22, marginBottom: 10 },
   optionsRow: { flexDirection: 'row', gap: 8 },
-  optionChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1 },
-  quantityRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  optionChip: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: Radius.pill, borderWidth: 1 },
+  quantityRow: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   stepperButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: Radius.sm,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  quantityText: { fontSize: 15, fontWeight: '700', minWidth: 20, textAlign: 'center' },
-  footer: { padding: 14, borderTopWidth: StyleSheet.hairlineWidth },
+  quantityText: { fontSize: 16, fontWeight: '700', minWidth: 24, textAlign: 'center' },
+  footer: { padding: 16, borderTopWidth: StyleSheet.hairlineWidth },
 });

@@ -4,6 +4,8 @@ import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-nati
 
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { StarRating } from '@/components/ui/star-rating';
+import { CardShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as reviewService from '@/services/review-service';
 import { useAppTheme } from '@/state/theme-context';
 
@@ -78,7 +80,7 @@ export default function OrderReviewScreen() {
         numberOfLines={4}
         placeholder="Tell us what you liked or what we can improve..."
         placeholderTextColor={colors.textSecondary}
-        style={[styles.textArea, { backgroundColor: colors.surface, color: colors.text }]}
+        style={[styles.textArea, { backgroundColor: colors.surface, color: colors.text }, CardShadow]}
       />
 
       <View style={{ marginTop: 24 }}>
@@ -90,9 +92,9 @@ export default function OrderReviewScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 32 },
-  title: { fontSize: 18, fontWeight: '600' },
+  title: { fontSize: 19, fontWeight: '700', fontFamily: Fonts.displayBold },
   overallRow: { alignItems: 'center', marginVertical: 24 },
-  sectionLabel: { fontSize: 12, letterSpacing: 1.2, fontWeight: '700', marginBottom: 12, marginTop: 8 },
+  sectionLabel: { fontSize: 11.5, letterSpacing: 1.2, fontWeight: '700', marginBottom: 12, marginTop: 8 },
   itemRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  textArea: { borderRadius: 8, padding: 14, fontSize: 14, textAlignVertical: 'top', minHeight: 100 },
+  textArea: { borderRadius: Radius.md, padding: 14, fontSize: 14, textAlignVertical: 'top', minHeight: 100 },
 });

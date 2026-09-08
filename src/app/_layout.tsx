@@ -5,6 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { Fonts } from '@/constants/theme';
+import '@/lib/default-fonts';
 import { AuthProvider } from '@/state/auth-context';
 import { MenuProvider } from '@/state/menu-context';
 import { ThemeProvider as AppThemeProvider, useAppTheme } from '@/state/theme-context';
@@ -22,7 +24,8 @@ function RootStack() {
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
           headerShadowVisible: false,
-          headerTitleStyle: { fontSize: 16, fontWeight: '600' },
+          headerTitleStyle: { fontSize: 16, fontFamily: Fonts.sansSemiBold },
+          headerBackTitleStyle: { fontFamily: Fonts.sans },
           contentStyle: { backgroundColor: colors.background },
         }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

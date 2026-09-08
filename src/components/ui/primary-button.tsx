@@ -1,5 +1,6 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text } from 'react-native';
 
+import { Radius } from '@/constants/layout';
 import { useAppTheme } from '@/state/theme-context';
 
 export function PrimaryButton({
@@ -22,12 +23,14 @@ export function PrimaryButton({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      style={[
+      style={({ pressed }) => [
         styles.button,
         outline
-          ? { borderWidth: 1, borderColor: colors.primary, backgroundColor: 'transparent' }
+          ? { borderWidth: 1.5, borderColor: colors.primary, backgroundColor: 'transparent' }
           : { backgroundColor: colors.primary },
+        !outline && !isDisabled && styles.shadow,
         isDisabled && styles.disabled,
+        pressed && !isDisabled && styles.pressed,
       ]}>
       {loading ? (
         <ActivityIndicator color={outline ? colors.primary : '#2A2007'} />
@@ -40,16 +43,31 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderRadius: Radius.md,
+    paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  shadow: Platform.select({
+    ios: {
+      shadowColor: '#C9A24A',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.28,
+      shadowRadius: 10,
+    },
+    android: { elevation: 4 },
+    default: {},
+  }),
+  pressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.99 }],
   },
   disabled: {
     opacity: 0.5,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 14.5,
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
 });

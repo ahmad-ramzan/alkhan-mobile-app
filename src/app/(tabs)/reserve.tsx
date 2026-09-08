@@ -1,10 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { PrimaryButton } from '@/components/ui/primary-button';
+import { FloatingShadow, Radius } from '@/constants/layout';
+import { Fonts } from '@/constants/theme';
 import * as mobileAuthService from '@/services/mobile-auth-service';
 import * as reservationService from '@/services/reservation-service';
 import { useAppTheme } from '@/state/theme-context';
@@ -23,6 +26,7 @@ function formatTimeLabel(time: string) {
 export default function ReservationScreen() {
   const { colors } = useAppTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const dateOptions = useMemo(() => {
     return Array.from({ length: 14 }, (_, i) => {
@@ -94,9 +98,11 @@ export default function ReservationScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <SectionLabel title="BRANCH" />
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
-          <Text style={{ color: colors.text, fontSize: 14 }}>{selectedBranch ?? 'No branch available'}</Text>
-        </View>
+        <Card style={styles.card}>
+          <Text style={{ color: colors.text, fontSize: 14, fontWeight: '600' }}>
+            {selectedBranch ?? 'No branch available'}
+          </Text>
+        </Card>
 
         <SectionLabel title="DATE" />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
@@ -130,11 +136,16 @@ export default function ReservationScreen() {
           onChangeText={setOccasion}
           placeholder="Birthday, anniversary, business..."
           placeholderTextColor={colors.textSecondary}
-          style={[styles.textInput, { color: colors.text, borderColor: colors.border }]}
+          style={[styles.textInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface }]}
         />
       </ScrollView>
 
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.footer,
+          { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + 20 },
+          FloatingShadow,
+        ]}>
         <PrimaryButton
           label={`Confirm · ${dateLabel}, ${timeLabel}`}
           onPress={confirmReservation}
@@ -153,12 +164,12 @@ function SectionLabel({ title }: { title: string }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 16, fontWeight: '600', textAlign: 'center', paddingVertical: 20 },
+  title: { fontSize: 18, fontWeight: '700', fontFamily: Fonts.displayBold, textAlign: 'center', paddingVertical: 18 },
   content: { paddingHorizontal: 20, paddingBottom: 24 },
-  sectionLabel: { fontSize: 12, letterSpacing: 1.2, fontWeight: '500', marginBottom: 12 },
-  card: { padding: 14, borderRadius: 8, marginBottom: 24 },
+  sectionLabel: { fontSize: 11.5, letterSpacing: 1.2, fontWeight: '700', marginBottom: 12 },
+  card: { marginBottom: 24 },
   chipRow: { gap: 10, paddingBottom: 24 },
   wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
-  textInput: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 16, paddingVertical: 14, fontSize: 14 },
+  textInput: { borderWidth: 1, borderRadius: Radius.md, paddingHorizontal: 16, paddingVertical: 14, fontSize: 14 },
   footer: { padding: 20, borderTopWidth: StyleSheet.hairlineWidth },
 });
