@@ -7,6 +7,7 @@ import { ItemCard } from '@/components/item-card';
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { CardShadow, Radius } from '@/constants/layout';
+import { resolveImageUrl } from '@/constants/config';
 import { useCartStore } from '@/state/cart-store';
 import { useMenuData } from '@/state/menu-context';
 import { useAppTheme } from '@/state/theme-context';
@@ -109,6 +110,7 @@ export default function SearchScreen() {
                   useCartStore.getState().addItem({
                     itemCode: item.item_name,
                     itemName: item.item_name,
+                    itemImage: resolveImageUrl(item.item_image),
                     rate: Number(item.rate ?? 0),
                   })
                 }

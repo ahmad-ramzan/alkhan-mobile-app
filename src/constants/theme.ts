@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
  * AlKhan brand palette — ported from the source Flutter app's `app_theme.dart`.
  * `primary` and `textSecondary` are identical in both modes there.
  */
-const primary = '#C9A24A';
+const primary = '#E6BE50'; // bright gold — was #C9A24A
 const textSecondary = '#8E877C';
 
 export const Colors = {

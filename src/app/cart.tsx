@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { FloatingShadow, Radius } from '@/constants/layout';
+import { resolveImageUrl } from '@/constants/config';
 import { Fonts } from '@/constants/theme';
 import * as selfOrderingService from '@/services/self-ordering-service';
 import { cartGrandTotal, useCartStore, type CartItem } from '@/state/cart-store';
@@ -97,11 +98,12 @@ export default function CartScreen() {
 
 function CartRow({ item }: { item: CartItem }) {
   const { colors } = useAppTheme();
+  const imageUrl = resolveImageUrl(item.itemImage);
   return (
     <Card style={styles.row}>
       <View style={[styles.rowImage, { backgroundColor: colors.imagePlaceholder }]}>
-        {item.itemImage ? (
-          <Image source={{ uri: item.itemImage }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
         ) : (
           <Ionicons name="restaurant-outline" size={20} color={colors.primary} />
         )}

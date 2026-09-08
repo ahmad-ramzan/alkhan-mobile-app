@@ -95,6 +95,7 @@ export default function FavoritesScreen() {
                       useCartStore.getState().addItem({
                         itemCode: item.item_code,
                         itemName: item.item_name,
+                        itemImage: resolveImageUrl(item.image),
                         rate: Number(item.rate ?? 0),
                       })
                     }

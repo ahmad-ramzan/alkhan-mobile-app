@@ -53,13 +53,16 @@ export function ItemCard({
         </View>
       )}
       <View style={styles.footerRow}>
-        <Text style={[styles.price, { color: colors.text }]}>Rs {(item.rate ?? 0).toFixed(0)}</Text>
+        <Text style={[styles.price, { color: colors.primary }]}>
+          Rs <Text style={styles.priceValue}>{(item.rate ?? 0).toFixed(0)}</Text>
+        </Text>
         <Pressable
           onPress={onAdd}
           hitSlop={6}
           style={({ pressed }) => [
             styles.addButton,
             { backgroundColor: colors.primary },
+            styles.addShadow,
             pressed && styles.pressed,
           ]}>
           <Ionicons name="add" size={18} color="#2A2007" />
@@ -72,9 +75,9 @@ export function ItemCard({
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    padding: 10,
-    borderRadius: Radius.lg,
-    gap: 6,
+    padding: 12,
+    borderRadius: Radius.xl,
+    gap: 7,
   },
   pressed: {
     opacity: 0.85,
@@ -87,8 +90,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   name: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 13.5,
+    fontWeight: '700',
   },
   ratingRow: {
     flexDirection: 'row',
@@ -106,14 +109,28 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   price: {
-    fontSize: 13.5,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  priceValue: {
+    fontSize: 15,
+    fontWeight: '900',
   },
   addButton: {
-    width: 30,
-    height: 30,
-    borderRadius: Radius.sm + 1,
+    width: 32,
+    height: 32,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  addShadow: Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 5,
+    },
+    android: { elevation: 3 },
+    default: { boxShadow: '0 3px 8px rgba(0,0,0,0.25)' },
+  }),
 });

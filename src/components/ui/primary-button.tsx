@@ -50,12 +50,12 @@ const styles = StyleSheet.create({
   },
   shadow: Platform.select({
     ios: {
-      shadowColor: '#C9A24A',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.28,
-      shadowRadius: 10,
+      shadowColor: '#E6BE50',
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.32,
+      shadowRadius: 12,
     },
-    android: { elevation: 4 },
+    android: { elevation: 6 },
     default: {},
   }),
   pressed: {
@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   label: {
-    fontSize: 14.5,
-    fontWeight: '700',
-    letterSpacing: 0.2,
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.4,
   },
 });

@@ -9,7 +9,8 @@ export default function TabsLayout() {
     <NativeTabs
       backgroundColor={colors.background}
       indicatorColor={colors.backgroundSelected}
-      tintColor={colors.primary}>
+      tintColor={colors.primary}
+      disableTransparentOnScrollEdge>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Menu</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="fork.knife" md="restaurant" />

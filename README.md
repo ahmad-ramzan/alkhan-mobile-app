@@ -130,7 +130,7 @@ Browse all restaurant locations with:
 ## Design System
 
 **Color Palette:**
-- Primary: `#C9A24A` (Gold)
+- Primary: `#E6BE50` (Bright Gold)
 - Background: `#0E0E0E` (Dark)
 - Secondary: `#1A1A18` (Dark Gray)
 - Text: `#F5F1EA` (Light)

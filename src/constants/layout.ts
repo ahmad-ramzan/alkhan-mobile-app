@@ -21,12 +21,12 @@ export const Gap = {
 export const CardShadow = Platform.select({
   ios: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
   },
-  android: { elevation: 3 },
-  default: { boxShadow: '0 4px 10px rgba(0,0,0,0.12)' },
+  android: { elevation: 4 },
+  default: { boxShadow: '0 5px 16px rgba(0,0,0,0.15)' },
 }) as object;
 
 /** Stronger elevation for floating/sticky elements (footers, FABs). */

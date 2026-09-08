@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   Modal,
   Pressable,
@@ -11,12 +12,13 @@ import {
   Text,
   View,
 } from 'react-native';
+import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ItemCard } from '@/components/item-card';
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
-import { DEFAULT_PICKUP_TOKEN } from '@/constants/config';
+import { DEFAULT_PICKUP_TOKEN, resolveImageUrl } from '@/constants/config';
 import { CardShadow, Radius } from '@/constants/layout';
 import { BottomTabInset, Fonts } from '@/constants/theme';
 import * as offersService from '@/services/offers-service';
@@ -26,6 +28,20 @@ import * as selfOrderingService from '@/services/self-ordering-service';
 import { useCartStore, cartItemCount } from '@/state/cart-store';
 import { useMenuData } from '@/state/menu-context';
 import { useAppTheme } from '@/state/theme-context';
+
+/** Geometry of the 2-column item grid — used to estimate where a tapped "+" button sits on screen. */
+const GRID_PADDING_X = 16;
+const GRID_COL_GAP = 14;
+const CARD_PAD_Y = 24; // item-card vertical padding (12 top + 12 bottom)
+const CARD_GAP = 7;
+const NAME_LINE_H = 18;
+const RATING_ROW_H = 15;
+const FOOTER_H = 34;
+const CARD_MARGIN_BOTTOM = 14;
+const IMG_ASPECT = 1.15;
+
+/** Fly-to-cart animation tuning. */
+const FLY_DURATION = 650;
 
 export default function MenuScreen() {
   const { colors } = useAppTheme();
@@ -41,6 +57,17 @@ export default function MenuScreen() {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [branchPickerVisible, setBranchPickerVisible] = useState(false);
   const [offersPageIndex, setOffersPageIndex] = useState(0);
+
+  // Fly-to-cart animation bookkeeping (refs avoid re-rendering the list on scroll/layout).
+  const scrollRef = useRef(0);
+  const headerHRef = useRef(72);
+  const listHeaderHRef = useRef(250);
+  const nextFlyerId = useRef(0);
+  const [flyers, setFlyers] = useState<{ id: number; entering: any }[]>([]);
+
+  const screenW = Dimensions.get('screen').width;
+  const colW = (screenW - GRID_PADDING_X * 2 - GRID_COL_GAP) / 2;
+  const cartX = screenW - 36; // center of the header cart icon
 
   useEffect(() => {
     (async () => {
@@ -79,6 +106,37 @@ export default function MenuScreen() {
     [menuItems, selectedCategory]
   );
 
+  /** Estimated height of one item card (depends on whether it shows a rating row). */
+  const cardHeightFor = (hasRating: boolean) => {
+    const imgH = colW / IMG_ASPECT;
+    const kids = hasRating ? 4 : 3;
+    return CARD_PAD_Y + imgH + NAME_LINE_H + (hasRating ? RATING_ROW_H : 0) + FOOTER_H + (kids - 1) * CARD_GAP;
+  };
+
+  /** Height of a grid row = tallest card in it + bottom margin. */
+  const rowHeightFor = (row: number) => {
+    const first = filteredItems[row * 2];
+    const second = filteredItems[row * 2 + 1];
+    const hA = cardHeightFor(itemRatings[first?.item_name]?.avg_rating != null);
+    const hB = second ? cardHeightFor(itemRatings[second.item_name]?.avg_rating != null) : hA;
+    return Math.max(hA, hB) + CARD_MARGIN_BOTTOM;
+  };
+
+  /** Approximate on-screen position of the "+" button for the item at `index` in the grid. */
+  const flyFromGridIndex = (index: number) => {
+    const row = Math.floor(index / 2);
+    const col = index % 2;
+    let contentTop = listHeaderHRef.current;
+    for (let r = 0; r < row; r++) contentTop += rowHeightFor(r);
+    const item = filteredItems[index];
+    const cardH = cardHeightFor(itemRatings[item?.item_name]?.avg_rating != null);
+    const cardLeft = GRID_PADDING_X + col * (colW + GRID_COL_GAP);
+    return {
+      x: cardLeft + colW - 28, // center of the "+" button (right edge of the card)
+      y: headerHRef.current + contentTop + cardH - 29 - scrollRef.current,
+    };
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.center, { backgroundColor: colors.background }]}>
@@ -99,7 +157,11 @@ export default function MenuScreen() {
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <View
+        style={[styles.header, { borderBottomColor: colors.border }]}
+        onLayout={(e) => {
+          headerHRef.current = e?.nativeEvent?.layout?.height ?? headerHRef.current;
+        }}>
         <Pressable onPress={() => setBranchPickerVisible(true)} hitSlop={4}>
           <Text style={[styles.brand, { color: colors.primary }]}>ALKHAN</Text>
           <View style={styles.branchRow}>
@@ -126,12 +188,18 @@ export default function MenuScreen() {
         numColumns={2}
         contentContainerStyle={styles.gridContent}
         columnWrapperStyle={styles.gridRow}
+        onScroll={(e) => {
+          scrollRef.current = e?.nativeEvent?.contentOffset?.y ?? scrollRef.current;
+        }}
         ListHeaderComponent={
-          <View>
+          <View
+            onLayout={(e) => {
+              listHeaderHRef.current = e?.nativeEvent?.layout?.height ?? listHeaderHRef.current;
+            }}>
             <Pressable
-              style={[styles.searchBar, { backgroundColor: colors.surface }, CardShadow]}
+              style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }, CardShadow]}
               onPress={() => router.push('/search')}>
-              <Ionicons name="search" size={17} color={colors.textSecondary} />
+              <Ionicons name="search" size={17} color={colors.primary} />
               <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>
                 Search 150+ dishes
               </Text>
@@ -188,7 +256,7 @@ export default function MenuScreen() {
           </View>
         }
         ListEmptyComponent={<EmptyState icon="fast-food-outline" title="No items found" />}
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
           const rating = itemRatings[item.item_name];
           return (
             <View style={styles.gridItem}>
@@ -201,13 +269,39 @@ export default function MenuScreen() {
                     params: { itemCode: item.item_name, rate: String(item.rate ?? 0), image: item.item_image ?? '' },
                   })
                 }
-                onAdd={() =>
+                onAdd={() => {
                   useCartStore.getState().addItem({
                     itemCode: item.item_name,
                     itemName: item.item_name,
+                    itemImage: resolveImageUrl(item.item_image),
                     rate: Number(item.rate ?? 0),
-                  })
-                }
+                  });
+                  const { x, y } = flyFromGridIndex(index);
+                  const id = ++nextFlyerId.current;
+                  const cartY = Math.max(26, Math.round(headerHRef.current / 2));
+                  const dx = x - cartX;
+                  const dy = y - cartY;
+                  // One keyframe per tap — created once on the JS thread (NOT during render).
+                  // No withCallback/'worklet' here: completion is handled with a plain setTimeout
+                  // on the RN thread, which avoids the native worklet-callback crash path.
+                  const entering = new Keyframe({
+                    0: { transform: [{ translateX: dx }, { translateY: dy }, { scale: 1 }], opacity: 1 },
+                    50: {
+                      transform: [{ translateX: dx * 0.45 }, { translateY: dy * 0.5 - 44 }, { scale: 0.85 }],
+                      opacity: 1,
+                      easing: Easing.out(Easing.quad),
+                    },
+                    100: {
+                      transform: [{ translateX: 0 }, { translateY: 0 }, { scale: 0.3 }],
+                      opacity: 0.1,
+                      easing: Easing.in(Easing.quad),
+                    },
+                  }).duration(FLY_DURATION);
+                  setFlyers((current) => [...current, { id, entering }]);
+                  setTimeout(() => {
+                    setFlyers((current) => current.filter((f) => f.id !== id));
+                  }, FLY_DURATION + 80);
+                }}
               />
             </View>
           );
@@ -246,11 +340,27 @@ export default function MenuScreen() {
           </View>
         </Pressable>
       </Modal>
+
+      {/* Fly-to-cart: a gold bubble arcs from the tapped "+" button into the header cart icon. */}
+      {flyers.map((flyer) => (
+        <Animated.View
+          key={flyer.id}
+          entering={flyer.entering}
+          style={[
+            styles.flyerAnchor,
+            { left: cartX - 15, top: Math.max(26, Math.round(headerHRef.current / 2)) - 15 },
+          ]}>
+          <View style={[styles.flyerBall, { backgroundColor: colors.primary }]}>
+            <Ionicons name="add" size={13} color="#2A2007" />
+          </View>
+        </Animated.View>
+      ))}
     </SafeAreaView>
   );
 }
 
 function OfferCard({ offer, onPress }: { offer: Record<string, any>; onPress: () => void }) {
+  const { colors } = useAppTheme();
   const discountLabel =
     offer.discount_type === 'Fixed Amount' ? `Rs. ${offer.discount_value} OFF` : `${offer.discount_value}% OFF`;
   const minOrder = Number(offer.minimum_order_amount ?? 0);
@@ -258,14 +368,14 @@ function OfferCard({ offer, onPress }: { offer: Record<string, any>; onPress: ()
   return (
     <Pressable style={({ pressed }) => [styles.offerCard, pressed && { opacity: 0.92 }]} onPress={onPress}>
       <View style={styles.offerCodeRow}>
-        <Ionicons name="pricetag" size={16} color="#D9B872" />
+        <Ionicons name="pricetag" size={16} color="#E6BE50" />
         <Text style={styles.offerCode}>{offer.code}</Text>
       </View>
       <Text style={styles.offerDiscount}>{discountLabel}</Text>
       {minOrder > 0 && <Text style={styles.offerMinOrder}>On orders above Rs. {minOrder.toFixed(0)}</Text>}
-      <View style={styles.offerButton}>
+      <View style={[styles.offerButton, { backgroundColor: colors.primary }]}>
         <Text style={styles.offerButtonText}>View Offers</Text>
-        <Ionicons name="arrow-forward" size={13} color="#fff" />
+        <Ionicons name="arrow-forward" size={13} color="#2A2007" />
       </View>
     </Pressable>
   );
@@ -282,7 +392,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  brand: { fontSize: 15, letterSpacing: 1, fontFamily: Fonts.displayBold },
+  brand: { fontSize: 17, letterSpacing: 2, fontFamily: Fonts.displayBold },
   branchRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
   branchText: { fontSize: 12.5, fontWeight: '600' },
   cartIconWrap: {
@@ -314,9 +424,10 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     paddingHorizontal: 14,
     paddingVertical: 13,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
   },
-  searchPlaceholder: { fontSize: 13 },
+  searchPlaceholder: { fontSize: 13.5, fontWeight: '600' },
   offersSection: { marginBottom: 20 },
   offerCard: {
     width: 300,
@@ -335,7 +446,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#C9A24A',
     borderRadius: Radius.sm,
     paddingHorizontal: 16,
     paddingVertical: 11,
@@ -343,6 +453,21 @@ const styles = StyleSheet.create({
   offerButtonText: { color: '#2A2007', fontWeight: '800', fontSize: 12.5 },
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 12 },
   dot: { height: 6, borderRadius: 3 },
+  flyerAnchor: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    zIndex: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flyerBall: {
+    width: 26,
+    height: 26,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   categoriesRow: { marginBottom: 18 },
   categoriesRowContent: { paddingHorizontal: 16, gap: 8 },
   sectionTitle: { fontSize: 11, letterSpacing: 1.6, fontWeight: '700', marginHorizontal: 16, marginBottom: 10 },
